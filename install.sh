@@ -10,8 +10,9 @@
 ##
 platform='unknown'
 unamestr=`uname`
+unamerpi=`uname -a | grep -o Raspbian`
 if [[ "$unamestr" == 'Linux' ]]; then
-  if [ ! -d "/home/pi/" ];
+  if [ ! "$unamerpi" == 'Raspbian'  ];
     then
       platform='linux'
     else
