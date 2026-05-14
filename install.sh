@@ -10,9 +10,9 @@
 ##
 platform='unknown'
 unamestr=`uname`
-unamerpi=`uname -a | grep -o Raspbian`
+unamerpi=`cat /etc/rpi-issue | grep -o Raspberry`
 if [[ "$unamestr" == 'Linux' ]]; then
-  if [ ! "$unamerpi" == 'Raspbian'  ];
+  if [ ! "$unamerpi" == 'Raspberry'  ];
     then
       platform='linux'
     else
@@ -86,9 +86,7 @@ echo ""
 echo -e "[ \033[1m\033[96mpink\033[m ] Install RaspAP --------------------------------------------------------"
 if [ $platform == "linux-rpi" ];
   then
-#    wget -q https://git.io/vDr0i -O /tmp/raspap && bash /tmp/raspap
-#    new raspap source - other link doesn't work
-     wget -q https://git.io/voEUQ -O /tmp/raspap && bash /tmp/raspap
+    curl -sL https://install.raspap.com | bash -s -- --yes --wireguard 0 --openvpn 0 --tcp-bbr 0 --provider 0 --adblock 0 --minwrite 1
 fi
 
 echo ""
