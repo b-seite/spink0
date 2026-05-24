@@ -61,8 +61,8 @@ bool Engine::isPlaying() const
 
 double Engine::beatTime() const
 {
-  const auto timeline = m_link.captureAppTimeline();
-  return timeline.beatAtTime(m_link.clock().micros(), m_engineDataShared.quantum);
+  const auto sessionState = m_link.captureAppSessionState();
+  return sessionState.beatAtTime(m_link.clock().micros(), m_engineDataShared.quantum);
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -98,7 +98,7 @@ void Engine::setSampleRate(double sampleRate)
 
 double Engine::tempo() const
 {
-  return m_link.captureAppTimeline().tempo();
+  return m_link.captureAppSessionState().tempo();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -172,7 +172,7 @@ void Engine::process(const std::chrono::microseconds hostTime, const std::size_t
 {
   const auto engineData = pullEngineData();
 
-  auto timeline = m_link.captureAudioTimeline();
+  auto sessionState = m_link.captureAudioSessionState();
 
   // Clear the buffer
   std::fill(m_bufferClock.begin(), m_bufferClock.end(), 0.);
@@ -180,25 +180,25 @@ void Engine::process(const std::chrono::microseconds hostTime, const std::size_t
 
   if (engineData.resetBeatTime)
   {
-    // Reset the timeline so that beat 0 lands at the beginning of
+    // Reset the sessionState so that beat 0 lands at the beginning of
     // this buffer and clear the flag.
-    timeline.requestBeatAtTime(0, hostTime, engineData.quantum);
+    sessionState.requestBeatAtTime(0, hostTime, engineData.quantum);
   }
 
   if (engineData.requestedTempo > 0)
   {
     // Set the newly requested tempo from the beginning of this buffer
-    timeline.setTempo(engineData.requestedTempo, hostTime);
+    sessionState.setTempo(engineData.requestedTempo, hostTime);
   }
 
-  // Timeline modifications are complete, commit the results
-  m_link.commitAudioTimeline(timeline);
+  // sessionState modifications are complete, commit the results
+  m_link.commitAudioSessionState(sessionState);
 
   if (engineData.isPlaying)
   {
     // As long as the engine is playing, generate metronome clicks in
     // the buffer at the appropriate beats.
-    renderMetronomeIntoBuffer(timeline, engineData.quantum, hostTime, numSamples);
+    renderMetronomeIntoBuffer(sessionState, engineData.quantum, hostTime, numSamples);
   }
 }
 
@@ -227,7 +227,8 @@ Engine::Data Engine::pullEngineData()
 
 // -------------------------------------------------------------------------------------------------
 
-void Engine::renderMetronomeIntoBuffer(const Link::Timeline timeline,
+void Engine::renderMetronomeIntoBuffer(
+  const Link::SessionState sessionState,
   const double quantum,
   const std::chrono::microseconds beginHostTime,
   const std::size_t numSamples)
@@ -253,12 +254,12 @@ void Engine::renderMetronomeIntoBuffer(const Link::Timeline timeline,
 
     // Only emit clock pulses for positive beat magnitudes. Negative beat
     // magnitudes are count-in beats.
-    if (timeline.beatAtTime(hostTime, quantum) >= 0.)
+    if (sessionState.beatAtTime(hostTime, quantum) >= 0.)
     {
-      auto clickDuration = duration<double>{(30.0 / timeline.tempo()) * pulseWrapFactor};
+      auto clickDuration = duration<double>{(30.0 / sessionState.tempo()) * pulseWrapFactor};
 
-      if (timeline.phaseAtTime(hostTime, pulseWrapFactor)
-          < timeline.phaseAtTime(lastSampleHostTime, pulseWrapFactor))
+      if (sessionState.phaseAtTime(hostTime, pulseWrapFactor)
+          < sessionState.phaseAtTime(lastSampleHostTime, pulseWrapFactor))
       {
         m_timeAtLastClick = hostTime;
       }
@@ -266,7 +267,7 @@ void Engine::renderMetronomeIntoBuffer(const Link::Timeline timeline,
       const auto secondsAfterClick = duration_cast<duration<double>>(hostTime - m_timeAtLastClick);
       const auto secondsAfterReset = duration_cast<duration<double>>(hostTime - m_timeAtLastReset);
 
-      auto phase = timeline.phaseAtTime(hostTime, quantum);
+      auto phase = sessionState.phaseAtTime(hostTime, quantum);
       if (phase < m_phase)
       {
         // reset!

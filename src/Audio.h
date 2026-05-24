@@ -46,7 +46,7 @@ private:
 #ifdef __APPLE__
   ableton::link::HostTimeFilter<ableton::platforms::darwin::Clock> m_hostTimeFilter;
 #else
-  ableton::link::HostTimeFilter<ableton::platforms::stl::Clock> m_hostTimeFilter;
+  ableton::link::HostTimeFilter<typename ableton::Link::Clock> m_hostTimeFilter;
 #endif
 
   Engine m_engine;
