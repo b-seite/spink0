@@ -92,6 +92,15 @@ fi
 echo ""
 echo ""
 echo ""
+echo -e "[ \033[1m\033[96mpink\033[m ] Install alsa --------------------------------------------------------"
+if [ $platform == "linux-rpi" ];
+  then
+    apt install -y alsa-utils libasound2-dev
+fi
+
+echo ""
+echo ""
+echo ""
 echo -e "[ \033[1m\033[96mpink\033[m ] Build and install portaudio -------------------------------------------"
 cd modules/portaudio
 ./configure --with-alsa --without-oss --without-jack
