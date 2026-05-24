@@ -3,7 +3,7 @@
         url = https://github.com/ableton/link.git 
 [submodule "modules/portaudio"] 
         path = modules/portaudio 
-        url = https://github.com/PortAudio/portaudio.git 
+        url = https://github.com/gglockner/portaudio.git 
 [submodule "modules/nmws"] 
         path = modules/nmws 
         url = https://github.com/shaduzlabs/nmws.git 
