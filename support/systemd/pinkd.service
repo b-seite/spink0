@@ -1,0 +1,13 @@
+[Unit]
+Description=Spink - ableton link  service
+After=network.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+ExecStart=/usr/sbin/pinkd
+
+[Install]
+WantedBy=multi-user.target

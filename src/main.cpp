@@ -239,9 +239,10 @@ int main(int, char**)
 {
   ScopedLog log;
 
-  log.info("daemon starting");
-  daemonize("/tmp/", "/var/run/pinkd.pid");
-
+  log.info("daemon starting up");
+  //daemonize("/tmp/", "/var/run/pinkd.pid");
+  log.info("daemon skipped");
+  
   std::shared_ptr<Pink> pink(new Pink(120., 4., 1.0));
 
 #ifdef UI_USE_WEBSOCKET

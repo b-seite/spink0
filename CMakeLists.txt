@@ -197,5 +197,7 @@ endif()
 
 if(UNIX)
   install(TARGETS pink DESTINATION /usr/sbin COMPONENT binaries)
-  install(PROGRAMS ${PINK_ROOT_DIR}/support/init.d/pink DESTINATION /etc/init.d/ )
+  install(PROGRAMS ${PINK_ROOT_DIR}/support/systemd/pinkd.service DESTINATION /etc/systemd/system/ )
+  execute_process(COMMAND bash -c "systemctl daemon-reload")
+  execute_process(COMMAND bash -c "systemctl enable --now pinkd.service")
 endif()
